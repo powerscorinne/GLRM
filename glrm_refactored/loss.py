@@ -1,0 +1,84 @@
+from numpy.linalg import norm
+from numpy import sign, maximum, ceil
+from util import scale
+
+"""
+Abstract loss class and canonical loss functions.
+"""
+
+# Abstract Loss class
+class Loss(object):
+    def loss(self, A, X, Y): raise NotImplementedError("Override me!")
+    def subgrad(self, A, X, Y, mask): raise NotImplementedError("Override me!")
+    def encode(self, A): return A # default
+    def decode(self, A): return A # default
+
+    def __init__(self, A, missing = [], T = False):
+        if T: A = A.T
+        unscaled_loss = self.loss
+        unscaled_subgrad = self.subgrad
+
+        @scale(A, missing, T)
+        def loss(X, Y): return unscaled_loss(A, X, Y)
+        def subgrad(X, Y): return unscaled_subgrad(A, X, Y, loss.mask)
+        self.loss = loss
+        self.subgrad = subgrad
+
+        self.n = A.shape[1] # number of columns of A
+
+    def __str__(self): return "GLRM Loss: override me!"
+    def __call__(self, X, Y): return self.loss(X, Y)
+
+# Canonical loss functions
+class QuadraticLoss(Loss):
+    def loss(self, A, X, Y): return (A - X.dot(Y))**2/2.0 # matrix format!
+    def subgrad(self, A, X, Y, mask): return -X.T.dot((A - X.dot(Y))*mask) # mask!
+    def __str__(self): return "quadratic loss"
+
+class HuberLoss(Loss):
+    a = 1.0 # XXX does the value of `a' propagate if we update it?
+    def loss(self, A, X, Y): 
+        B = A - X.dot(Y)
+        return ((abs(B) <= self.a)*B**2 + \
+                (abs(B) > self.a)*(2*abs(B) - self.a)*self.a)
+    def subgrad(self, A, X, Y, mask):
+        B = A - X.dot(Y)
+        return -X.T.dot((2*(abs(B) <= self.a)*B + \
+                (abs(B) > self.a)*sign(B)*2*self.a)*mask)
+    def __str__(self): return "huber loss"
+
+class FractionalLoss(Loss):
+    PRECISION = 1e-3
+    def loss(self, A, X, Y):
+        U = X.dot(Y)
+        U = maximum(U, self.PRECISION) # to avoid dividing by zero
+        return maximum((A - U)/U, (U - A)/A)
+
+    def subgrad(self, A, X, Y, mask):
+        U = X.dot(Y)
+        U = maximum(U, self.PRECISION) # to avoid dividing by zero
+        return -X.T.dot(((1.0/A)*(U >= A) + (-A/U**2)*(U < A))*mask)
+
+    def __str__(self): return "fractional loss"
+
+class HingeLoss(Loss):
+    def loss(self, A, X, Y): return maximum((1 - A*X.dot(Y)), 0)
+    def subgrad(self, A, X, Y, mask): return -X.T.dot(A*((1 - A*X.dot(Y)) > 0)*mask)
+    def decode(self, A): return sign(A) # convert back to Boolean
+    def __str__(self): return "hinge loss"
+
+
+class OrdinalLoss(Loss):
+    Amin, Amax = 1, 7 # e.g. Likert scale
+    def loss(self, A, X, Y): 
+        U = X.dot(Y)
+        return sum([maximum(U - a, 0)*(a >= A) + maximum(-U + a + 1, 0)*(a < A)
+            for a in range(Amin, Amax+1)])
+    def subgrad(self, A, X, Y, mask):
+        U = X.dot(Y)
+        B = (U < Amin)*(Amin - A) + (U > Amax)*(Amax - A) \
+                + sign(U - A)*ceil(abs(U - A))*((U >= Amin) & (U <= Amax))
+        return -X.T.dot(B*mask)
+    def decode(self, A): return maximum(minimum(A, Amax), Amin))
+    def __str__(self): return "ordinal loss"
+
