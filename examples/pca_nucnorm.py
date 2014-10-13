@@ -17,7 +17,6 @@ regX, regY = QuadraticReg(0.1), QuadraticReg(0.1) # r = 0.1 * ||x||_2^2
 glrm_pca_nn = GLRM(A, loss, regX, regY, k)
 
 # Fit
-print 0.5/abs(data).max()/n
 glrm_pca_nn.fit(alpha = 0.5/abs(data).max()/n)
 
 # Results
@@ -25,3 +24,12 @@ X, Y = glrm_pca_nn.factors()
 A_hat = glrm_pca_nn.predict() # glrm_pca.predict(X, Y) works too; returns decode(XY)
 ch = glrm_pca_nn.convergence() # convergence history
 glrm_pca_nn.compare() # simple visualization tool to compare A and A_hat
+
+# Now with missing data
+from numpy.random import choice
+from itertools import product
+missing = list(product(range(int(0.25*m), int(0.75*m)), range(int(0.25*n), int(0.75*n))))
+
+glrm_pca_nn_missing = GLRM(A, loss, regX, regY, k, missing)
+glrm_pca_nn_missing.fit()
+glrm_pca_nn_missing.compare()

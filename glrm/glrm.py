@@ -15,12 +15,13 @@ class GLRM(object):
         if not isinstance(A, list): A = [A]
         if not isinstance(loss, list): loss = [loss]
         if not isinstance(regY, list): regY = [regY]
+        if missing_list and not isinstance(missing_list[0], list): missing_list = [missing_list]
 
         if missing_list == None:
             missingY, missingX = [[]]*len(loss), [[]]*len(loss)
         else:
             missingY = missing_list
-            missingX = [[typle(reversed(a)) for a in b] for b in missing_list]
+            missingX = [[tuple(reversed(a)) for a in b] for b in missing_list]
 
         # create blocks for Y (feature) updates
         lossY = [L(B, missing = m) for B, L, m in zip(A, loss, missingY)]

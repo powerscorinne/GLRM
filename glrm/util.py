@@ -53,7 +53,6 @@ def pretty_plot(A, A_hat, missing):
     vmax = max(A.max(), A_hat.max())
     my_dpi = 96
     plt.figure(figsize=(1400/my_dpi, 250/my_dpi), dpi = my_dpi)
-    if missing == [[]]
 
     plt.subplot(1, 4, 1)
     plt.imshow(A, interpolation = 'nearest', vmin = vmin, vmax = vmax)
@@ -70,7 +69,7 @@ def pretty_plot(A, A_hat, missing):
 
     plt.subplot(1,4,2)
     masked_data = ones(A.shape)
-    for ij in missing: masked_data[ij] = 0
+    for i,j in missing:  masked_data[i,j] = 0
     masked_data = masked_where(masked_data > 0.5, masked_data)
     plt.imshow(A, interpolation = "nearest", vmin = vmin, vmax = vmax)
     plt.colorbar()
