@@ -1,5 +1,8 @@
 from numpy import ones, round, zeros, expand_dims, Inf, tile, arange, repeat, array
 from functools import wraps
+from matplotlib import pyplot as plt
+import matplotlib.cm as cm
+from numpy.ma import masked_where
 
 def scale(A, missing, T):
     """
@@ -43,3 +46,71 @@ def scale(A, missing, T):
 
         return scaled_fcn
     return generate_scaled_fcn
+
+def pretty_plot(A, A_hat, missing):
+    # setup
+    vmin = min(A.min(), A_hat.min()) # for pixel color reference
+    vmax = max(A.max(), A_hat.max())
+    my_dpi = 96
+    plt.figure(figsize=(1400/my_dpi, 250/my_dpi), dpi = my_dpi)
+    if missing == [[]]
+
+    plt.subplot(1, 4, 1)
+    plt.imshow(A, interpolation = 'nearest', vmin = vmin, vmax = vmax)
+    plt.colorbar()
+    plt.title("original")
+    plt.tick_params(\
+            axis = "both",
+            which = "both",
+            left = "off",
+            right = "off",
+            top = "off",
+            labelleft = "off",
+            labelbottom = "off")
+
+    plt.subplot(1,4,2)
+    masked_data = ones(A.shape)
+    for ij in missing: masked_data[ij] = 0
+    masked_data = masked_where(masked_data > 0.5, masked_data)
+    plt.imshow(A, interpolation = "nearest", vmin = vmin, vmax = vmax)
+    plt.colorbar()
+    plt.imshow(masked_data, cmap = cm.binary, interpolation = "nearest")
+    plt.title("entries removed")
+    plt.tick_params(\
+            axis = "both",
+            which = "both",
+            left = "off",
+            right = "off",
+            top = "off",
+            labelleft = "off",
+            labelbottom = "off")
+
+    plt.subplot(1,4,3)
+    plt.imshow(A_hat, interpolation = "nearest", vmin = vmin, vmax = vmax)
+    plt.tick_params(\
+            axis = "both",
+            which = "both",
+            left = "off",
+            right = "off",
+            top = "off",
+            labelleft = "off",
+            labelbottom = "off")
+    plt.title("low rank approx")
+    plt.colorbar()
+
+    plt.subplot(1,4,4)
+    B = A - A_hat
+    plt.imshow(B, interpolation = "nearest", vmin = B.min(), vmax = B.max())
+    plt.colorbar()
+    plt.tick_params(\
+            axis = "both",
+            which = "both",
+            left = "off",
+            right = "off",
+            top = "off",
+            labelleft = "off",
+            labelbottom = "off")
+    plt.title("error")
+    
+    plt.show()
+

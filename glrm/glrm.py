@@ -1,5 +1,6 @@
 from convergence import Convergence
 from fit import Block
+from util import pretty_plot
 from numpy import hstack, ones
 from numpy.random import randn
 
@@ -36,6 +37,7 @@ class GLRM(object):
         self.X = hstack((randn(m,k), ones((m,1))))
         self.Y = [randn(k+1,ni) for ni in [b.L[0].n for b in self.blocksY]]
         self.A = A
+        self.missing = hstack(missingY) # only for plotting
         self.converge = Convergence(TOL = 1e-3, max_iters = 1000) # can enter TOL and max_iters
 
     def factors(self):
@@ -74,3 +76,6 @@ class GLRM(object):
             # update convergence object
             self.converge.val.append(self.factors())
             self.converge.obj.append(self.loss_obj() + self.reg_obj())
+
+    def compare(self):
+        pretty_plot(hstack(self.A), self.predict(), self.missing) 
