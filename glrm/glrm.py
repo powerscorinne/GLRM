@@ -57,19 +57,19 @@ class GLRM(object):
         # regularization cost evaluated at current (X, Y)
         return  self.blocksX.r(self.X.T) + sum([b.r(Yp) for b, Yp in zip(self.blocksY, self.Y)])
 
-    def fit(self):
+    def fit(self, alpha = 0.001):
         # fit using alternating minimization with gradient descent 
         while not self.converge.d():
 
             # update Y
             convergeY = Convergence(max_iters = 1e3) # again, can sepcify TOL and max_iters
             for b, Y in zip(self.blocksY, self.Y): # split over features
-                b.update(self.X, Y, convergeY)
+                b.update(self.X, Y, convergeY, alpha)
 
             # update X
             convergeX = Convergence(max_iters = 1e3)
             self.blocksX.update([Y.T for Y in self.Y], self.X.T, \
-                    convergeX, skip_last_col = True)
+                    convergeX, alpha, skip_last_col = True)
 
             # update convergence object
             self.converge.val.append(self.factors())

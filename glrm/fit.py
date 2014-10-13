@@ -1,4 +1,6 @@
 from math import sqrt
+from numpy.linalg import norm
+from numpy import Inf
 
 class Block(object):
     # FYI: we use (X, Y) here but sometimes it's (Y, X)
@@ -18,18 +20,20 @@ class Block(object):
         if not isinstance(Xs, list): Xs = [Xs]
         return sum([L(X, Y) for L, X in zip(self.L, Xs)])
 
-    def update(self, Xs, Y, converge, skip_last_col = False):
+    def update(self, Xs, Y, converge, alpha, skip_last_col = False):
         # gradient descent step
         # to implement more algorithms, refer to old code
         if not isinstance(Xs, list): Xs = [Xs]
-        alpha = 0.001 # XXX stepsize 
+        
+        # gradient stepsize; approximate Lipschitz parameter
+        alpha = 0.5/float(max([abs(X).max() for X in Xs])*Xs[0].shape[0])
         
         while not converge.d():
             # gradient step
             grad = sum([L.subgrad(X, Y) for L, X in zip(self.L, Xs)])
             grad_r = self.r.subgrad(Y)
             if skip_last_col:
-                grad_r[-1:,:] = 0
+                grad_r[-1:,:] = 0 # XXX shouldn't this always happen?
                 grad[-1:,:] = 0
             Y -= alpha/sqrt(len(converge)+1)*(grad + grad_r)
 
