@@ -1,6 +1,6 @@
-from glrm_refactored.loss import QuadraticLoss
-from glrm_refactored.reg import QuadraticReg
-from glrm_refactored.glrm import GLRM
+from glrm.loss import QuadraticLoss
+from glrm.reg import QuadraticReg
+from glrm.model import GLRM
 from numpy.random import randn, choice, seed
 from numpy import sign
 seed(1)
