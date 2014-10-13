@@ -79,6 +79,6 @@ class OrdinalLoss(Loss):
         B = (U < Amin)*(Amin - A) + (U > Amax)*(Amax - A) \
                 + sign(U - A)*ceil(abs(U - A))*((U >= Amin) & (U <= Amax))
         return -X.T.dot(B*mask)
-    def decode(self, A): return maximum(minimum(A, Amax), Amin))
+    def decode(self, A): return maximum(minimum(A, Amax), Amin)
     def __str__(self): return "ordinal loss"
 
