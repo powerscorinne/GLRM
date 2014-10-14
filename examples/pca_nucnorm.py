@@ -17,7 +17,7 @@ regX, regY = QuadraticReg(0.1), QuadraticReg(0.1) # r = 0.1 * ||x||_2^2
 glrm_pca_nn = GLRM(A, loss, regX, regY, k)
 
 # Fit
-glrm_pca_nn.fit(alpha = 0.5/abs(data).max()/n)
+glrm_pca_nn.fit()
 
 # Results
 X, Y = glrm_pca_nn.factors()

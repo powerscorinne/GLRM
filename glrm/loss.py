@@ -1,5 +1,5 @@
 from numpy.linalg import norm
-from numpy import sign, maximum, ceil
+from numpy import sign, maximum, ceil, minimum
 from util import scale
 
 """
@@ -69,16 +69,17 @@ class HingeLoss(Loss):
 
 
 class OrdinalLoss(Loss):
-    Amin, Amax = 1, 7 # e.g. Likert scale
+    Amax, Amin = 0, 0
     def loss(self, A, X, Y): 
         U = X.dot(Y)
+        self.Amin, self.Amax = A.min(), A.max()
         return sum([maximum(U - a, 0)*(a >= A) + maximum(-U + a + 1, 0)*(a < A)
-            for a in range(Amin, Amax+1)])
+            for a in range(self.Amin, self.Amax+1)])
     def subgrad(self, A, X, Y, mask):
         U = X.dot(Y)
-        B = (U < Amin)*(Amin - A) + (U > Amax)*(Amax - A) \
-                + sign(U - A)*ceil(abs(U - A))*((U >= Amin) & (U <= Amax))
+        B = (U < self.Amin)*(self.Amin - A) + (U > self.Amax)*(self.Amax - A) \
+                + sign(U - A)*ceil(abs(U - A))*((U >= self.Amin) & (U <= self.Amax))
         return -X.T.dot(B*mask)
-    def decode(self, A): return maximum(minimum(A, Amax), Amin)
+    def decode(self, A): return maximum(minimum(A, self.Amax), self.Amin)
     def __str__(self): return "ordinal loss"
 

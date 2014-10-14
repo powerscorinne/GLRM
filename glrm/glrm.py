@@ -3,18 +3,25 @@ from fit import Block
 from util import pretty_plot
 from numpy import hstack, ones
 from numpy.random import randn
+from copy import copy
 
 # XXX does not support splitting over samples yet (only over features to
 # accommodate arbitrary losses by column).
 
 class GLRM(object):
 
-    def __init__(self, A, loss, regX, regY, k, missing_list = None):
+    def __init__(self, A, loss, regX, regY, k, missing_list = None, converge = None):
 
+
+        if converge == None: self.converge = Convergence(TOL = 1e-4, max_iters = 1000)
+        else: self.converge = converge
+        
         # A, loss, and regY should be lists
         if not isinstance(A, list): A = [A]
         if not isinstance(loss, list): loss = [loss]
         if not isinstance(regY, list): regY = [regY]
+        if len(regY) == 1 and len(regY) < len(loss): 
+            regY = [copy(regY[0]) for _ in range(len(loss))]
         if missing_list and not isinstance(missing_list[0], list): missing_list = [missing_list]
 
         if missing_list == None:
@@ -39,7 +46,6 @@ class GLRM(object):
         self.Y = [randn(k+1,ni) for ni in [b.L[0].n for b in self.blocksY]]
         self.A = A
         self.missing = hstack(missingY) # only for plotting
-        self.converge = Convergence(TOL = 1e-3, max_iters = 1000) # can enter TOL and max_iters
 
     def factors(self):
         # return X, Y as matrices (not lists of sub matrices)
@@ -60,19 +66,19 @@ class GLRM(object):
         # regularization cost evaluated at current (X, Y)
         return  self.blocksX.r(self.X.T) + sum([b.r(Yp) for b, Yp in zip(self.blocksY, self.Y)])
 
-    def fit(self, alpha = 0.001):
+    def fit(self):
         # fit using alternating minimization with gradient descent 
         while not self.converge.d():
 
             # update Y
             convergeY = Convergence(max_iters = 1e3) # again, can sepcify TOL and max_iters
             for b, Y in zip(self.blocksY, self.Y): # split over features
-                b.update(self.X, Y, convergeY, alpha)
+                b.update(self.X, Y, convergeY)
 
             # update X
             convergeX = Convergence(max_iters = 1e3)
             self.blocksX.update([Y.T for Y in self.Y], self.X.T, \
-                    convergeX, alpha, skip_last_col = True)
+                    convergeX,  skip_last_col = True)
 
             # update convergence object
             self.converge.val.append(self.factors())

@@ -20,14 +20,15 @@ class Block(object):
         if not isinstance(Xs, list): Xs = [Xs]
         return sum([L(X, Y) for L, X in zip(self.L, Xs)])
 
-    def update(self, Xs, Y, converge, alpha, skip_last_col = False):
+    def update(self, Xs, Y, converge, skip_last_col = False):
         # gradient descent step
         # to implement more algorithms, refer to old code
         if not isinstance(Xs, list): Xs = [Xs]
         
         # gradient stepsize; approximate Lipschitz parameter
-        alpha = 0.5/float(max([abs(X).max() for X in Xs])*Xs[0].shape[0])
-        
+        alpha = 0.5/float(max([abs(X).max() for X in
+            Xs])*Xs[0].shape[0])/sum([X.shape[1] for X in Xs])
+
         while not converge.d():
             # gradient step
             grad = sum([L.subgrad(X, Y) for L, X in zip(self.L, Xs)])

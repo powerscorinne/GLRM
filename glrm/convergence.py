@@ -1,3 +1,4 @@
+from matplotlib import pyplot as plt
 
 class Convergence(object):
 
@@ -25,4 +26,7 @@ class Convergence(object):
         return str(self.obj)
 
     def plot(self):
-        pass
+        plt.plot(self.obj)
+        plt.title("model error")
+        plt.xlabel("iteration")
+        plt.show()
