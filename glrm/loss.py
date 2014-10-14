@@ -74,12 +74,12 @@ class OrdinalLoss(Loss):
         U = X.dot(Y)
         self.Amin, self.Amax = A.min(), A.max()
         return sum([maximum(U - a, 0)*(a >= A) + maximum(-U + a + 1, 0)*(a < A)
-            for a in range(self.Amin, self.Amax+1)])
+            for a in range(int(self.Amin), int(self.Amax))])
     def subgrad(self, A, X, Y, mask):
         U = X.dot(Y)
         B = (U < self.Amin)*(self.Amin - A) + (U > self.Amax)*(self.Amax - A) \
                 + sign(U - A)*ceil(abs(U - A))*((U >= self.Amin) & (U <= self.Amax))
-        return -X.T.dot(B*mask)
+        return X.T.dot(B*mask)
     def decode(self, A): return maximum(minimum(A, self.Amax), self.Amin)
     def __str__(self): return "ordinal loss"
 

@@ -28,6 +28,7 @@ class Block(object):
         # gradient stepsize; approximate Lipschitz parameter
         alpha = 0.5/float(max([abs(X).max() for X in
             Xs])*Xs[0].shape[0])/sum([X.shape[1] for X in Xs])
+        #alpha = 0.001
 
         while not converge.d():
             # gradient step

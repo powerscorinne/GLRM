@@ -8,18 +8,20 @@ from numpy import sign, ceil
 seed(1)
 
 # Generate problem data
-m, k = 200, 20
-n1 = 100 # cols of numerical data
-n2 = 50 # cols of ordinal data
-n3 = 50 # cols of boolean data
+m, k = 100, 15
+n1 = 50 # cols of numerical data
+n2 = 25 # cols of ordinal data
+n3 = 25 # cols of boolean data
 n = n1+n2+n3
-data_real = randn(m,n1) # numerical data
-data_ord = choice(range(7), (m, n2)) + 1 # ordinal data, e.g., Likert scale
-data_bool = sign(randn(m,n3))
+data = randn(m,k).dot(randn(k,n))
+data_real = data[:,:n1] # numerical data
+data_ord = data[:,n1:n1+n2] 
+data_ord = ((data_ord - data_ord.min())/data_ord.max()*6 + 1).round()# ordinal data, e.g., Likert scale
+data_bool = sign(data[:,n1+n2:])
 
 # Initialize model
 A = [data_real, data_ord, data_bool]
-converge = Convergence(TOL = 1e-5, max_iters = 10000)
+converge = Convergence(TOL = 1e-3, max_iters = 1000)
 loss = [QuadraticLoss, OrdinalLoss, HingeLoss]
 regX, regY = QuadraticReg(0.01), QuadraticReg(0.01) # r = 0.1 * ||x||_2^2
 glrm_mix = GLRM(A, loss, regX, regY, k, converge = converge)
