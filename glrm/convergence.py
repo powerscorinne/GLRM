@@ -8,7 +8,7 @@ class Convergence(object):
         self.TOL = TOL
         self.max_iters = max_iters
 
-    def d(self):
+    def d(self): # if converge.d == True:
         # return True if converged
         if len(self) < 2: return False
         if len(self) > self.max_iters: 

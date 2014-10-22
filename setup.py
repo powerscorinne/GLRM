@@ -6,7 +6,7 @@ setup(
         author="Corinne Horn",
         author_email="cehorn@stanford.edu",
         packages=["glrm"],
-        pacakge_dir={"glrm":"glrm"},
+        package_dir={"glrm":"glrm"},
         url="http://github.com/cehorn/GLRM/",
         license="MIT",
         install_requires=[  "numpy >= 1.8",

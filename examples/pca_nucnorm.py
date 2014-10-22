@@ -6,7 +6,7 @@ from numpy import sign
 seed(1)
 
 # Generate problem data
-m, n, k = 500, 500, 10
+m, n, k = 50, 50, 5
 eta = 0.1 # noise power
 data = randn(m,k).dot(randn(k,n)) + eta*randn(m,n) # noisy rank k
 
