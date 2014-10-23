@@ -33,7 +33,7 @@ class GLRM(object):
         self.L = [L(B, missing = m) for B, L, m in zip(A, loss, missingY)]
         self.regX = regX
         self.regY = regY
-        self.missing = hstack(missingY) # only for plotting
+        self.missing = missingY
 
         # initialize alternating minimization algorithm
         self.algX, self.algY = SGD, SGD  #use stochastic gradient descent on inner subprobs

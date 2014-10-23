@@ -49,24 +49,37 @@ def scale(A, missing, T):
 
 def pplot(As, titles):
     # setup
-    try: vmin = min([A.min() for A in As[:-1]]) # for pixel color reference
+    try: vmin = min([A.min() for A, t in zip(As[:-1], titles) if "missing" not in t]) # for pixel color reference
     except: vmin = As[0].min()
-    try: vmax = max([A.max() for A in As[:-1]])
+    try: vmax = max([A.max() for A, t in zip(As[:-1], titles) if "missing" not in t])
     except: vmax = As[0].max()
     my_dpi = 96
     plt.figure(figsize=(1.4*(250*len(As))/my_dpi, 250/my_dpi), dpi = my_dpi)
     for i, (A, title) in enumerate(zip(As, titles)):
         plt.subplot(1, len(As), i+1)
-        if i == len(A): vmin, vmax = A.min(), A.max()
-        plt.imshow(A, interpolation = 'nearest', vmin = vmin, vmax = vmax)
-        plt.colorbar()
-        #if "missing" in title:
-        #    masked_data = ones(A.shape)
-        #    for i,j in missing:  masked_data[i,j] = 0
-        #    masked_data = masked_where(masked_data > 0.5, masked_data)
-        #    plt.imshow(masked_data, cmap = cm.binary, interpolation = "nearest")
+        if i == len(As)-1: vmin, vmax = A.min(), A.max()
+        if "missing" in title:
+            missing = A
+            masked_data = ones(As[0].shape)
+            for i,j in missing:  masked_data[i,j] = 0
+            masked_data = masked_where(masked_data > 0.5, masked_data)
+            plt.imshow(As[0], interpolation = 'nearest', vmin = vmin, vmax = vmax)
+            plt.colorbar()
+            plt.imshow(masked_data, cmap = cm.binary, interpolation = "nearest")
+        else:
+            plt.imshow(A, interpolation = 'nearest', vmin = vmin, vmax = vmax)
+            plt.colorbar()
         plt.title(title)
         plt.axis("off")
    
     plt.show()
+
+def unroll_missing(missing, ns):
+    missing_unrolled = []
+    for i, (MM, n) in enumerate(zip(missing, ns)):
+        for m in MM:
+            n2 = m[1] + sum([ns[j] for j in range(i)])
+            missing_unrolled.append((m[0], n2))
+    return missing_unrolled
+
 
