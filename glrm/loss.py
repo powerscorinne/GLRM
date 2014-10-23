@@ -8,6 +8,7 @@ Abstract loss class and canonical loss functions.
 
 # Abstract Loss class
 class Loss(object):
+    # shape indicates how quickly it grows: 0 [flat], 1 [linear], 2 [quadratic+]
     def loss(self, A, X, Y): raise NotImplementedError("Override me!")
     def subgrad(self, A, X, Y, mask): raise NotImplementedError("Override me!")
     def encode(self, A): return A # default
@@ -31,11 +32,13 @@ class Loss(object):
 
 # Canonical loss functions
 class QuadraticLoss(Loss):
+    shape = 2
     def loss(self, A, X, Y): return (A - X.dot(Y))**2/2.0 # matrix format!
     def subgrad(self, A, X, Y, mask): return -X.T.dot((A - X.dot(Y))*mask) # mask!
     def __str__(self): return "quadratic loss"
 
 class HuberLoss(Loss):
+    shape = 1
     a = 1.0 # XXX does the value of `a' propagate if we update it?
     def loss(self, A, X, Y): 
         B = A - X.dot(Y)
@@ -48,6 +51,7 @@ class HuberLoss(Loss):
     def __str__(self): return "huber loss"
 
 class FractionalLoss(Loss):
+    shape = 2
     PRECISION = 1e-3
     def loss(self, A, X, Y):
         U = X.dot(Y)
@@ -62,6 +66,7 @@ class FractionalLoss(Loss):
     def __str__(self): return "fractional loss"
 
 class HingeLoss(Loss):
+    shape = 1
     def loss(self, A, X, Y): return maximum((1 - A*X.dot(Y)), 0)
     def subgrad(self, A, X, Y, mask): return -X.T.dot(A*((1 - A*X.dot(Y)) > 0)*mask)
     def decode(self, A): return sign(A) # convert back to Boolean
@@ -69,6 +74,7 @@ class HingeLoss(Loss):
 
 
 class OrdinalLoss(Loss):
+    shape = 1
     Amax, Amin = 0, 0
     def loss(self, A, X, Y): 
         U = X.dot(Y)
@@ -80,6 +86,6 @@ class OrdinalLoss(Loss):
         B = (U < self.Amin)*(self.Amin - A) + (U > self.Amax)*(self.Amax - A) \
                 + sign(U - A)*ceil(abs(U - A))*((U >= self.Amin) & (U <= self.Amax))
         return X.T.dot(B*mask)
-    def decode(self, A): return maximum(minimum(A, self.Amax), self.Amin)
+    def decode(self, A): return maximum(minimum(A.round(), self.Amax), self.Amin)
     def __str__(self): return "ordinal loss"
 

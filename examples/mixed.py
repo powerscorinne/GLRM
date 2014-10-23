@@ -8,9 +8,9 @@ from numpy import sign, ceil
 seed(1)
 
 # Generate problem data
-m, k = 100, 15
-n1 = 50 # cols of numerical data
-n2 = 25 # cols of ordinal data
+m, k = 50, 10
+n1 = 25 # cols of numerical data
+n2 = 10 # cols of ordinal data
 n3 = 25 # cols of boolean data
 n = n1+n2+n3
 data = randn(m,k).dot(randn(k,n))
@@ -21,9 +21,9 @@ data_bool = sign(data[:,n1+n2:])
 
 # Initialize model
 A = [data_real, data_ord, data_bool]
-converge = Convergence(TOL = 1e-3, max_iters = 1000)
 loss = [QuadraticLoss, OrdinalLoss, HingeLoss]
-regX, regY = QuadraticReg(0.01), QuadraticReg(0.01) # r = 0.1 * ||x||_2^2
+regX, regY = QuadraticReg(0.01), QuadraticReg(0.01)
+converge = Convergence(TOL = 1e-2, max_iters = 1000) # optional (default TOL = 1e-3)
 glrm_mix = GLRM(A, loss, regX, regY, k, converge = converge)
 
 # Fit

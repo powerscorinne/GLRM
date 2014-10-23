@@ -2,7 +2,7 @@ from matplotlib import pyplot as plt
 
 class Convergence(object):
 
-    def __init__(self, TOL = 1e-2, max_iters = 1e3):
+    def __init__(self, TOL = 1e-3, max_iters = 1e3):
         self.obj = []
         self.val = []
         self.TOL = TOL

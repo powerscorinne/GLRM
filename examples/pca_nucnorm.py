@@ -12,8 +12,8 @@ data = randn(m,k).dot(randn(k,n)) + eta*randn(m,n) # noisy rank k
 
 # Initialize model
 A = data
-loss = QuadraticLoss # L = ||XY||_2^2
-regX, regY = QuadraticReg(0.1), QuadraticReg(0.1) # r = 0.1 * ||x||_2^2
+loss = QuadraticLoss
+regX, regY = QuadraticReg(0.1), QuadraticReg(0.1)
 glrm_pca_nn = GLRM(A, loss, regX, regY, k)
 
 # Fit
@@ -26,10 +26,10 @@ ch = glrm_pca_nn.convergence() # convergence history
 glrm_pca_nn.compare() # simple visualization tool to compare A and A_hat
 
 # Now with missing data
-from numpy.random import choice
-from itertools import product
-missing = list(product(range(int(0.25*m), int(0.75*m)), range(int(0.25*n), int(0.75*n))))
-
-glrm_pca_nn_missing = GLRM(A, loss, regX, regY, k, missing)
-glrm_pca_nn_missing.fit()
-glrm_pca_nn_missing.compare()
+# from numpy.random import choice
+# from itertools import product
+# missing = list(product(range(int(0.25*m), int(0.75*m)), range(int(0.25*n), int(0.75*n))))
+# 
+# glrm_pca_nn_missing = GLRM(A, loss, regX, regY, k, missing)
+# glrm_pca_nn_missing.fit()
+# glrm_pca_nn_missing.compare()

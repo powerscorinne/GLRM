@@ -11,14 +11,16 @@ seed(1)
 # Generate problem data
 m, n, k = 50, 50, 20
 data = randn(m,k).dot(randn(k,n))
-data = ((data - data.min())/data.max()*6).round() + 1 # approx rank k
+data = data - data.min()
+data = (data/data.max()*6).round() + 1 # approx rank k
 #data = choice(range(7), (m,n)) + 1 # not inherently rank k
 
 # Initialize model
 A = data
-converge = Convergence(TOL = 1e-4, max_iters = 1000)
+print A
 loss = OrdinalLoss
-regX, regY = QuadraticReg(0.01), QuadraticReg(0.01) # r = 0.1 * ||x||_2^2
+regX, regY = QuadraticReg(0.01), QuadraticReg(0.01)
+converge = Convergence(TOL = 1e-2, max_iters = 1000) # optional, default TOL = 1e-3
 glrm_ord = GLRM(A, loss, regX, regY, k, converge = converge)
 
 # Fit
@@ -31,8 +33,8 @@ ch = glrm_ord.convergence() # convergence history
 glrm_ord.compare() # simple visualization tool to compare A and A_hat
 
 # Now with missing data
-# missing = list(product(range(int(0.25*m), int(0.75*m)), range(int(0.25*n), int(0.75*n))))
-# 
-# glrm_pca_nn_missing = GLRM(A, loss, regX, regY, k, missing)
-# glrm_pca_nn_missing.fit()
-# glrm_pca_nn_missing.compare()
+missing = list(product(range(int(0.25*m), int(0.75*m)), range(int(0.25*n), int(0.75*n))))
+
+glrm_pca_nn_missing = GLRM(A, loss, regX, regY, k, missing)
+glrm_pca_nn_missing.fit()
+glrm_pca_nn_missing.compare()

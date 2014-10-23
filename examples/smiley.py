@@ -1,6 +1,7 @@
 from glrm.loss import HingeLoss
 from glrm.reg import QuadraticReg
 from glrm import GLRM
+from glrm.convergence import Convergence
 from numpy.random import randn, choice, seed
 from numpy import sign, ones
 from itertools import product
@@ -22,22 +23,23 @@ for i,j in product(range(300, 450), range(100, 250)):
 
 # Initialize model
 A = data
-loss = HingeLoss # L = ||XY||_2^2
-regX, regY = QuadraticReg(0.1), QuadraticReg(0.1) # r = 0.1 * ||x||_2^2
-glrm_pca_nn = GLRM(A, loss, regX, regY, k)
+loss = HingeLoss
+regX, regY = QuadraticReg(0.1), QuadraticReg(0.1)
+converge = Convergence(TOL = 1e-2)
+glrm_binary = GLRM(A, loss, regX, regY, k, converge = converge)
 
 # Fit
-glrm_pca_nn.fit(alpha = 0.5/abs(data).max()/n)
+glrm_binary.fit()
 
 # Results
-X, Y = glrm_pca_nn.factors()
-A_hat = glrm_pca_nn.predict() # glrm_pca.predict(X, Y) works too; returns decode(XY)
-ch = glrm_pca_nn.convergence() # convergence history
-glrm_pca_nn.compare() # simple visualization tool to compare A and A_hat
+X, Y = glrm_binary.factors()
+A_hat = glrm_binary.predict() # glrm_pca.predict(X, Y) works too; returns decode(XY)
+ch = glrm_binary.convergence() # convergence history
+glrm_binary.compare() # simple visualization tool to compare A and A_hat
 
 # Now with missing data
 missing = list(product(range(int(0.3*m), int(0.8*m)), range(int(0.55*n), int(0.7*n))))
 
-glrm_pca_nn_missing = GLRM(A, loss, regX, regY, k, missing)
-glrm_pca_nn_missing.fit()
-glrm_pca_nn_missing.compare()
+glrm_binary_missing = GLRM(A, loss, regX, regY, k, missing)
+glrm_binary_missing.fit()
+glrm_binary_missing.compare()
