@@ -36,10 +36,3 @@ X, Y = glrm_binary.factors()
 A_hat = glrm_binary.predict() # glrm_pca.predict(X, Y) works too; returns decode(XY)
 ch = glrm_binary.convergence() # convergence history
 glrm_binary.compare() # simple visualization tool to compare A and A_hat
-
-# Now with missing data
-missing = list(product(range(int(0.3*m), int(0.8*m)), range(int(0.55*n), int(0.7*n))))
-
-glrm_binary_missing = GLRM(A, loss, regX, regY, k, missing)
-glrm_binary_missing.fit()
-glrm_binary_missing.compare()

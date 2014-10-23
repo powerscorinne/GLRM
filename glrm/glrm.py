@@ -1,6 +1,5 @@
 from convergence import Convergence
 from algs import SGD, AltMin
-from util import pretty_plot
 from numpy import hstack, ones
 from numpy.random import randn
 from copy import copy
@@ -87,6 +86,3 @@ class GLRM(object):
     def fit(self):
         # yay! so easy (see AltMin object in algs.py and _init_altmin fcn above)
         self.X, self.Y = self.alg.minimize(self.X, self.Y)
-
-    def compare(self):
-        pretty_plot(hstack(self.A), self.predict(), self.missing) 

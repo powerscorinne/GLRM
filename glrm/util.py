@@ -47,69 +47,26 @@ def scale(A, missing, T):
         return scaled_fcn
     return generate_scaled_fcn
 
-def pretty_plot(A, A_hat, missing):
+def pplot(As, titles):
     # setup
-    vmin = min(A.min(), A_hat.min()) # for pixel color reference
-    vmax = max(A.max(), A_hat.max())
+    try: vmin = min([A.min() for A in As[:-1]]) # for pixel color reference
+    except: vmin = As[0].min()
+    try: vmax = max([A.max() for A in As[:-1]])
+    except: vmax = As[0].max()
     my_dpi = 96
-    plt.figure(figsize=(1400/my_dpi, 250/my_dpi), dpi = my_dpi)
-
-    plt.subplot(1, 4, 1)
-    plt.imshow(A, interpolation = 'nearest', vmin = vmin, vmax = vmax)
-    plt.colorbar()
-    plt.title("original")
-    plt.tick_params(\
-            axis = "both",
-            which = "both",
-            left = "off",
-            right = "off",
-            top = "off",
-            labelleft = "off",
-            labelbottom = "off")
-
-    plt.subplot(1,4,2)
-    masked_data = ones(A.shape)
-    for i,j in missing:  masked_data[i,j] = 0
-    masked_data = masked_where(masked_data > 0.5, masked_data)
-    plt.imshow(A, interpolation = "nearest", vmin = vmin, vmax = vmax)
-    plt.colorbar()
-    plt.imshow(masked_data, cmap = cm.binary, interpolation = "nearest")
-    plt.title("entries removed")
-    plt.tick_params(\
-            axis = "both",
-            which = "both",
-            left = "off",
-            right = "off",
-            top = "off",
-            labelleft = "off",
-            labelbottom = "off")
-
-    plt.subplot(1,4,3)
-    plt.imshow(A_hat, interpolation = "nearest", vmin = vmin, vmax = vmax)
-    plt.tick_params(\
-            axis = "both",
-            which = "both",
-            left = "off",
-            right = "off",
-            top = "off",
-            labelleft = "off",
-            labelbottom = "off")
-    plt.title("low rank approx")
-    plt.colorbar()
-
-    plt.subplot(1,4,4)
-    B = A - A_hat
-    plt.imshow(B, interpolation = "nearest", vmin = B.min(), vmax = B.max())
-    plt.colorbar()
-    plt.tick_params(\
-            axis = "both",
-            which = "both",
-            left = "off",
-            right = "off",
-            top = "off",
-            labelleft = "off",
-            labelbottom = "off")
-    plt.title("error")
-    
+    plt.figure(figsize=(1.4*(250*len(As))/my_dpi, 250/my_dpi), dpi = my_dpi)
+    for i, (A, title) in enumerate(zip(As, titles)):
+        plt.subplot(1, len(As), i+1)
+        if i == len(A): vmin, vmax = A.min(), A.max()
+        plt.imshow(A, interpolation = 'nearest', vmin = vmin, vmax = vmax)
+        plt.colorbar()
+        #if "missing" in title:
+        #    masked_data = ones(A.shape)
+        #    for i,j in missing:  masked_data[i,j] = 0
+        #    masked_data = masked_where(masked_data > 0.5, masked_data)
+        #    plt.imshow(masked_data, cmap = cm.binary, interpolation = "nearest")
+        plt.title(title)
+        plt.axis("off")
+   
     plt.show()
 
