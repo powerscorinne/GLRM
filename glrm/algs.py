@@ -18,7 +18,7 @@ class Algorithm(object):
 
 
 class SGD(Algorithm):
-    """ Stochastic gradient descent. """
+    """ Subgradient descent. """
     
     def __init__(self, subgrad, stepsize, obj):
         super(SGD, self).__init__()
