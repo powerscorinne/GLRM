@@ -3,10 +3,13 @@ from matplotlib import pyplot as plt
 class Convergence(object):
 
     def __init__(self, TOL = 1e-3, max_iters = 1e3):
-        self.obj = []
-        self.val = []
         self.TOL = TOL
         self.max_iters = max_iters
+        self.reset()
+
+    def reset(self):
+        self.obj = []
+        self.val = []
 
     def d(self): # if converge.d == True:
         # return True if converged

@@ -51,8 +51,8 @@ class HuberLoss(Loss):
     def __str__(self): return "huber loss"
 
 class FractionalLoss(Loss):
-    shape = 2
-    PRECISION = 1e-3
+    shape = 3
+    PRECISION = 1e-2
     def loss(self, A, X, Y):
         U = X.dot(Y)
         U = maximum(U, self.PRECISION) # to avoid dividing by zero
@@ -61,7 +61,7 @@ class FractionalLoss(Loss):
     def subgrad(self, A, X, Y, mask):
         U = X.dot(Y)
         U = maximum(U, self.PRECISION) # to avoid dividing by zero
-        return -X.T.dot(((1.0/A)*(U >= A) + (-A/U**2)*(U < A))*mask)
+        return -X.T.dot(((1.0/A)*(U < A) + (-A/U**2)*(U >= A))*mask)
 
     def __str__(self): return "fractional loss"
 

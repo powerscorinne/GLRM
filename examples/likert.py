@@ -38,4 +38,4 @@ missing = list(product(range(int(0.25*m), int(0.75*m)), range(int(0.25*n), int(0
 glrm_ord_missing = GLRM(A, loss, regX, regY, k, missing)
 glrm_ord_missing.fit()
 A_hat = glrm_ord_missing.predict()
-pplot([A, glrm_ord_missing.missing, A_hat, A-A_hat], ["original", "missing", "glrm", "error"])
+pplot([A, missing, A_hat, A-A_hat], ["original", "missing", "glrm", "error"])
