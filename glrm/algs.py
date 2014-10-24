@@ -37,7 +37,7 @@ class SGD(Algorithm):
         self.converge.obj.append(self.obj(X, Y))
         return Y
 
-    def __str__(self): return "stochastic gradient descent for (inner loop of) GLRM"
+    def __str__(self): return "subgradient descent for (inner loop of) GLRM"
 
 class ProxGD(Algorithm):
     """ Proximal gradient descent. """
