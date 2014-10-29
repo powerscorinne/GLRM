@@ -78,7 +78,7 @@ to the model. The default parameter values are shown below.
 
 All that remains is to initialize the GLRM model and call fit().
 
-    model = GLRM(A_list, loss_list, regX, regY, k, [converge = c])
+    model = GLRM(A_list, loss_list, regX, regY, k, converge = c)
     moel.fit()
 
 To extract the factors X, Y and impute missing values,
