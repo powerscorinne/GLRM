@@ -116,7 +116,7 @@ To view convergence history,
 To use NonnegativeReg on either X or Y, you must specify to use proximal
 gradient descent on the corresponding subproblem.
 
-    # given A_list, loss_list from above
+    # given A_list, loss_list, k from above
     from glrm.reg import NonnegativeReg
     from glrm.algs import ProxGD
 
