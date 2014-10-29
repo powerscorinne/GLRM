@@ -57,7 +57,7 @@ ZeroReg.)
     from glrm.reg import QuadraticReg
     regX, regY = QuadraticReg(0.1), QuadraticReg(0.1)
 
-If any entries are corrupted or missing, we stored indices of the missing
+If any entries are corrupted or missing, we store indices of the missing
 entries *for each submatrix* in the list format shown above. 
 For example, if a 4x4 block of data is missing from the center of our example
 above, this corresponds to rows 24-27 and columns 49-50 of submatrix 1,
