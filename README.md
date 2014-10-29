@@ -23,8 +23,8 @@ python setup.py install
 ## Basic usage
 The source code for similar problems can be found in the 'examples' folder.
 
-A GLRM model is specified by data table A, loss functions L, and a list of missing
-entries. 
+A GLRM model is specified by data table A, loss functions L, regularizers for X and Y, rank k, 
+and an (optinal) list of missing entries. 
 
     from glrm import GLRM
 
