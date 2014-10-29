@@ -69,6 +69,9 @@ and rows 24-27 and columns 1-2 of submatrix 2. (Python is 0-indexed.)
                     (25, 0), (25, 1), (26, 0), (26, 1)]
     missing_list = [missing1, missing2]
 
+If a GLRM object is not provided a list of missing entries, then it is assumed
+that no entries are missing.
+
 [Optional] To specify the tolerance and maximum number of iterations 
 of the alternating minimization algorithm, create a Convergence object to pass
 to the model. The default parameter values are shown below.
@@ -78,7 +81,7 @@ to the model. The default parameter values are shown below.
 
 All that remains is to initialize the GLRM model and call fit().
 
-    model = GLRM(A_list, loss_list, regX, regY, k, converge = c)
+    model = GLRM(A_list, loss_list, regX, regY, k, missing = missing_list, converge = c)
     model.fit()
 
 To extract the factors X, Y and impute missing values,
