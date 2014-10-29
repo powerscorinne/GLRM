@@ -79,12 +79,12 @@ to the model. The default parameter values are shown below.
 All that remains is to initialize the GLRM model and call fit().
 
     model = GLRM(A_list, loss_list, regX, regY, k, converge = c)
-    moel.fit()
+    model.fit()
 
 To extract the factors X, Y and impute missing values,
 
     X, Y = model.factors()
-    A_hat = glrm_mix.predict() # a horizontally concatenated matrix, not a list
+    A_hat = model.predict() # a horizontally concatenated matrix, not a list
 
 To compare our prediction error,
     
