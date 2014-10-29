@@ -103,6 +103,7 @@ To view convergence history,
  - HingeLoss
  - OrdinalLoss
 
+
  - ZeroReg
  - LinearReg
  - QuadraticReg
