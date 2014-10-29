@@ -60,8 +60,8 @@ ZeroReg.)
 If any entries are corrupted or missing, we stored indices of the missing
 entries *for each submatrix* in the list format shown above. 
 For example, if a 4x4 block of data is missing from the center of our example
-above, this corresponds to rows 24-27 and columns 49-50 for submatrix 1,
-and rows 24-27 and columns 1-2 for submatrix 2. (Python is 0-indexed.)
+above, this corresponds to rows 24-27 and columns 49-50 of submatrix 1,
+and rows 24-27 and columns 1-2 of submatrix 2. (Python is 0-indexed.)
 
     missing1     = [(23, 48), (23, 49), (24, 48), (24, 49), \
                     (25, 48), (25, 49), (26, 48), (26, 49)]
