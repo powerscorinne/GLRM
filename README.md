@@ -21,8 +21,7 @@ decoding XY back into the appropriate domain, and imputing missing entries.
 python setup.py install
 
 ## Basic usage
-The source code for this example, as well as several other similar problems, can
-be found in 'examples' folder.
+The source code for similar problems can be found in 'examples' folder.
 
 A GLRM model is specified by data table A, loss functions L, and a list of missing
 entries. 
