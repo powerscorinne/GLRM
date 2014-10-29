@@ -102,8 +102,6 @@ To view convergence history,
  - HuberLoss
  - HingeLoss
  - OrdinalLoss
-
-
  - ZeroReg
  - LinearReg
  - QuadraticReg
