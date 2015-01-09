@@ -4,6 +4,7 @@ from matplotlib import pyplot as plt
 import matplotlib.cm as cm
 from numpy.ma import masked_where
 from numpy import maximum, minimum
+import cvxpy as cp
 
 def scale(A, missing, T):
     """
@@ -22,19 +23,19 @@ def scale(A, missing, T):
         if not T: # minimization over Y; columns must be scaled
 
             # col means of zero-input
-            X0, Y0 = zeros((m, 1)), zeros((1,n))
-            zero_out = fcn(X0, Y0)*mask0
-            zero_col = zero_out.mean(0, keepdims=True)/mask0.mean(0)
+            X0, Y0 = cp.Parameter(m,1), cp.Parameter(1,n)
+            X0.value, Y0.value = zeros((m, 1)), zeros((1,n))
+            zero_out = cp.mul_elemwise(fcn(X0, Y0).value, mask0)
+            Y0.value = zero_out.value.mean(0)/mask0.mean(0)
             
             # col means of mean-input
-            mean_out = fcn(ones((m,1)), zero_col)*mask0
-            mean_col = mean_out.mean(0)/mask0.mean(0) # error using col mean
-            for i, e in enumerate(mean_col): # handle pathological case
-                if e == 0: mean_col[i] = 1
+            mean_out = cp.mul_elemwise(fcn(X0, Y0).value, mask0)
+            mean_col = mean_out.value.mean(0)/mask0.mean(0) # error using col mean
+            mean_col[mean_col == 0.0] = 1.0
 
             # scale missing-entry filter
-            if mean_out.mean() == 0: scale = 1 # don't want to zero the mask out!!
-            else: scale = mean_out.mean()
+            if mean_out.value.mean() == 0: scale = 1 # don't want to zero the mask out!!
+            else: scale = mean_out.value.mean()
             mask = mask0/mean_col*scale
         
         else: mask = mask0 # do not scale for minimization over X
@@ -42,7 +43,7 @@ def scale(A, missing, T):
         # call function with missing/scaled filter
         @wraps(fcn) # maintain fcn's docstrings
         def scaled_fcn(X, Y):
-            return (fcn(X, Y)*mask).sum()
+            return cp.sum_entries(cp.mul_elemwise(mask, fcn(X, Y)))
         scaled_fcn.mask = mask
 
         return scaled_fcn
