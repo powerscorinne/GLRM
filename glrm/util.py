@@ -15,7 +15,7 @@ def scale(A, missing, T):
     m, n = A.shape
 
     # zeros out missing entries
-    mask0 = ones(A.shape)
+    mask0 = ones((m,n))
     for indx in missing: mask0[indx] = 0
 
     def generate_scaled_fcn(fcn):
@@ -44,6 +44,8 @@ def scale(A, missing, T):
         @wraps(fcn) # maintain fcn's docstrings
         def scaled_fcn(X, Y):
             return cp.sum_entries(cp.mul_elemwise(mask, fcn(X, Y)))
+            #return sum(mask[i,j]*fcn(X, Y)[i,j] for i,j in zip(range(m), range(n)))
+            #return cp.sum_entries(fcn(X, Y))
         scaled_fcn.mask = mask
 
         return scaled_fcn

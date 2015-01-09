@@ -2,7 +2,6 @@ from glrm.loss import QuadraticLoss
 from glrm.reg import NonnegativeReg, QuadraticReg
 from glrm import GLRM
 from glrm.util import pplot
-from glrm.algs import ProxGD
 from numpy.random import randn, choice, seed
 from numpy.random import choice
 from itertools import product

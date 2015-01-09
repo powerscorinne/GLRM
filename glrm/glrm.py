@@ -2,6 +2,7 @@ from convergence import Convergence
 from numpy import hstack, ones
 from numpy.random import randn
 from copy import copy
+import cvxpy as cp
 
 # XXX does not support splitting over samples yet (only over features to
 # accommodate arbitrary losses by column).
@@ -28,20 +29,20 @@ class GLRM(object):
         m = A[0].shape[0]
         ns = [a.shape[1] for a in A]
 
-        # XXX need to add offest
+        # XXX try with other losses/regs
 
         # create cvxpy problems
         Xp = cp.Parameter(m,k+1)
         Y = [cp.Variable(k+1, ni) for ni in ns]
-        LossY = [L(B, missing=m) for L, B, m in zip(loss, A, missingY)]
-        objY = [cp.Problem(L(Xp, yj) + r(yj)) for L, yj, r in zip(LossY, Y, regY)]
-        self.probsY = (Xp, Y, [cp.Problem(objyj) for objyj in objY])
+        LossY = [L(B, missing=miss) for L, B, miss in zip(loss, A, missingY)]
+        objY = [cp.Problem(cp.Minimize(L(Xp, yj) + r(yj))) for L, yj, r in zip(LossY, Y, regY)]
+        self.probsY = (Xp, Y, objY)
 
-        X = cp.Variable(m,k)
+        X = cp.Variable(m,k+1)
         Yp = [cp.Parameter(k+1, ni) for ni in ns]
-        LossX = [L(B, T=True, missing=m) for L, B, m in zip(loss, A, missingX)]
-        objX = cp.Problem(sum(L(X, yj) for yj in Yp) + regX(X))
-        self.probX = (X, Yp, cp.Problem(objX))
+        LossX = [L(B, T=True, missing=miss) for L, B, miss in zip(loss, A, missingX)]
+        objX = cp.Problem(cp.Minimize(sum(L(X, yj) for L, yj in zip(LossX, Yp)) + regX(X)), [X[:,k:] == ones((m,1))])
+        self.probX = (X, Yp, objX)
                
         # save necessary info
         self.A = A
@@ -57,7 +58,7 @@ class GLRM(object):
 
     def convergence(self):
         # convergence information for alternating minimization algorithm
-        return self.alg.converge
+        return self.converge
 
     def predict(self):
         # return decode(XY), low-rank approximation of A
@@ -68,6 +69,7 @@ class GLRM(object):
         X, Yp, pX = self.probX
         
         # initialize X randomly
+        m, k = X.shape.rows, self.k
         Xp.value = hstack((randn(m,k), ones((m,1))))
         self.converge.reset()
 
@@ -75,15 +77,16 @@ class GLRM(object):
         while not self.converge.d():
             for i, (yj, pyj) in enumerate(zip(Y, pY)): 
                 pyj.solve()
-                Yp[i].value = pyj.value
+                Yp[i].value = yj.value
 
             obj = pX.solve()
             Xp.value = X.value
+            print obj
 
             self.converge.obj.append(obj)
-        
-        return X.value, [yj.value for yj in Y]
 
+        self.X, self.Y = X.value, [yj.value for yj in Y]
+        return self.X, self.Y
 
 
 
