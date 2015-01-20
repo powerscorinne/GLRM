@@ -85,7 +85,12 @@ class GLRM(object):
 
             self.converge.obj.append(obj)
 
-        self.X, self.Y = X.value, [yj.value for yj in Y]
+    loss = HuberLoss
+    regX, regY = QuadraticReg(nu), QuadraticReg(nu)
+    glrm = GLRM(A, loss, regX, regY, k, missing)
+    print "fitting GLRM"
+    glrm.fit()
+    return glrm       self.X, self.Y = X.value, [yj.value for yj in Y]
         return self.X, self.Y
 
 
