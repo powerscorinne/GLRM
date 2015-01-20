@@ -76,21 +76,16 @@ class GLRM(object):
         # iterate until converged
         while not self.converge.d():
             for i, (yj, pyj) in enumerate(zip(Y, pY)): 
-                pyj.solve()
+                pyj.solve(solver=cp.SCS, max_iters=1000)
                 Yp[i].value = yj.value
 
-            obj = pX.solve()
+            obj = pX.solve(solver=cp.SCS, max_iters=1000)
             Xp.value = X.value
             print obj
-
+            
             self.converge.obj.append(obj)
 
-    loss = HuberLoss
-    regX, regY = QuadraticReg(nu), QuadraticReg(nu)
-    glrm = GLRM(A, loss, regX, regY, k, missing)
-    print "fitting GLRM"
-    glrm.fit()
-    return glrm       self.X, self.Y = X.value, [yj.value for yj in Y]
+        self.X, self.Y = X.value, [yj.value for yj in Y]
         return self.X, self.Y
 
 

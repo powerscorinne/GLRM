@@ -20,7 +20,7 @@ regX, regY = QuadraticReg(0.01), QuadraticReg(0.01)
 glrm_nn = GLRM(A, loss, regX, regY, k)
 
 # Fit
-# glrm_nn.fit()
+glrm_nn.fit()
 # 
 # # Results
 # X, Y = glrm_nn.factors()
