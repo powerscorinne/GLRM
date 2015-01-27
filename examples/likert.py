@@ -10,7 +10,7 @@ from math import ceil
 seed(1)
 
 # Generate problem data
-m, n, k = 50, 50, 20
+m, n, k = 500, 500, 20
 data = randn(m,k).dot(randn(k,n))
 data = data - data.min()
 data = (data/data.max()*6).round() + 1 # approx rank k
@@ -19,7 +19,7 @@ data = (data/data.max()*6).round() + 1 # approx rank k
 # Initialize model
 A = data
 loss = OrdinalLoss
-regX, regY = QuadraticReg(0.01), QuadraticReg(0.01)
+regX, regY = QuadraticReg(0.001), QuadraticReg(0.001)
 converge = Convergence(TOL = 1e-2, max_iters = 1000) # optional, default TOL = 1e-3
 glrm_ord = GLRM(A, loss, regX, regY, k, converge = converge)
 
