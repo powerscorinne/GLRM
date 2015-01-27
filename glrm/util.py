@@ -6,51 +6,6 @@ from numpy.ma import masked_where
 from numpy import maximum, minimum
 import cvxpy as cp
 
-def scale(A, missing, T):
-    """
-    Function wrapper for scaling losses
-    and filtering out entries marked as missing.
-    """
-
-    m, n = A.shape
-
-    # zeros out missing entries
-    mask0 = ones((m,n))
-    for indx in missing: mask0[indx] = 0
-
-    def generate_scaled_fcn(fcn):
-
-        if not T: # minimization over Y; columns must be scaled
-
-            # col means of zero-input
-            X0, Y0 = cp.Parameter(m,1), cp.Parameter(1,n)
-            X0.value, Y0.value = zeros((m, 1)), zeros((1,n))
-            zero_out = cp.mul_elemwise(fcn(X0, Y0).value, mask0)
-            Y0.value = zero_out.value.mean(0)/mask0.mean(0)
-            
-            # col means of mean-input
-            mean_out = cp.mul_elemwise(fcn(X0, Y0).value, mask0)
-            mean_col = mean_out.value.mean(0)/mask0.mean(0) # error using col mean
-            mean_col[mean_col == 0.0] = 1.0
-
-            # scale missing-entry filter
-            if mean_out.value.mean() == 0: scale = 1 # don't want to zero the mask out!!
-            else: scale = mean_out.value.mean()
-            mask = mask0/mean_col*scale
-        
-        else: mask = mask0 # do not scale for minimization over X
-
-        # call function with missing/scaled filter
-        @wraps(fcn) # maintain fcn's docstrings
-        def scaled_fcn(X, Y):
-            return cp.sum_entries(cp.mul_elemwise(mask, fcn(X, Y)))
-            #return sum(mask[i,j]*fcn(X, Y)[i,j] for i,j in zip(range(m), range(n)))
-            #return cp.sum_entries(fcn(X, Y))
-        scaled_fcn.mask = mask
-
-        return scaled_fcn
-    return generate_scaled_fcn
-
 def pplot(As, titles):
     # setup
     try: vmin = min([A.min() for A, t in zip(As[:-1], titles) if "missing" not in t]) # for pixel color reference
@@ -77,15 +32,15 @@ def pplot(As, titles):
         plt.axis("off")
    
     plt.show()
-
-def unroll_missing(missing, ns):
-    missing_unrolled = []
-    for i, (MM, n) in enumerate(zip(missing, ns)):
-        for m in MM:
-            n2 = m[1] + sum([ns[j] for j in range(i)])
-            missing_unrolled.append((m[0], n2))
-    return missing_unrolled
-
+# 
+# def unroll_missing(missing, ns):
+#     missing_unrolled = []
+#     for i, (MM, n) in enumerate(zip(missing, ns)):
+#         for m in MM:
+#             n2 = m[1] + sum([ns[j] for j in range(i)])
+#             missing_unrolled.append((m[0], n2))
+#     return missing_unrolled
+# 
 def shrinkage(a, kappa):
     """ soft threshold with parameter kappa). """
     try: return maximum(a - kappa(ones(a.shape), 0)) - maximum(-a - kappa*ones(a.shape), 0)

@@ -10,7 +10,7 @@ from math import ceil
 seed(1)
 
 # Generate problem data
-m, n, k = 50, 50, 20
+m, n, k = 100, 100, 20
 data = randn(m,k).dot(randn(k,n))
 data = data - data.min()
 data = (data/data.max()*6).round() + 1 # approx rank k

@@ -28,5 +28,8 @@ class QuadraticReg(Reg):
     def __str__(self): return "quadratic reg"
 
 class NonnegativeReg(Reg):
-    def reg(self, X): 1e10*cp.sum_entries(cp.neg(X))
+    def reg(self, X): return 1e10*cp.sum_entries(cp.neg(X))
     def __str__(self): return "nonnegative reg"
+
+# XXX 
+# - k-indicator reg
