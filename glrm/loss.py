@@ -1,4 +1,5 @@
 import cvxpy as cp
+from numpy import ones, maximum, minimum
 
 """
 Abstract loss class and canonical loss functions.
@@ -19,32 +20,34 @@ class QuadraticLoss(Loss):
 
 class HuberLoss(Loss):
     a = 1.0 # XXX does the value of 'a' propagate if we update it?
-    def loss(self, A, U): return cp.huber(cp.Constant(A) - U, self.a)
+    def loss(self, A, U): return cp.sum_entries(cp.huber(cp.Constant(A) - U, self.a))
     def __str__(self): return "huber loss"
-#
+
 # class FractionalLoss(Loss):
-#     shape = 3
-#     PRECISION = 1e-2
-#     def loss(self, A, X, Y):
-#         U = X.dot(Y)
-#         U = maximum(U, self.PRECISION) # to avoid dividing by zero
+#     PRECISION = 1e-10
+#     def loss(self, A, U):
+#         B = cp.Constant(A)
+#         U = cp.max_elemwise(U, self.PRECISION) # to avoid dividing by zero
+#         return cp.max_elemwise(cp.mul_elemwise(cp.inv_pos(cp.pos(U)), B-U), \
 #         return maximum((A - U)/U, (U - A)/A)
 # 
-#     def subgrad(self, A, X, Y, mask):
-#         U = X.dot(Y)
-#         U = maximum(U, self.PRECISION) # to avoid dividing by zero
-#         return -X.T.dot(((1.0/A)*(U < A) + (-A/U**2)*(U >= A))*mask)
-# 
-#     def __str__(self): return "fractional loss"
-# 
-# class HingeLoss(Loss):
-#     shape = 1
-#     def loss(self, A, X, Y): return maximum((1 - A*X.dot(Y)), 0)
-#     def subgrad(self, A, X, Y, mask): return -X.T.dot(A*((1 - A*X.dot(Y)) > 0)*mask)
-#     def decode(self, A): return sign(A) # convert back to Boolean
-#     def __str__(self): return "hinge loss"
-# 
-# 
+
+class HingeLoss(Loss):
+    def loss(self, A, U): return cp.sum_entries(cp.pos(ones(A.shape)-cp.mul_elemwise(cp.Constant(A), U)))
+    def decode(self, A): return sign(A) # return back to Boolean
+    def __str__(self): return "hinge loss"
+
+class OrdinalLoss(Loss):
+    Amax, Amin = 0, 0
+    def loss(self, A, U):
+        self.Amin, self.Amax = A.min(), A.max()
+        return cp.sum_entries(sum(cp.mul_elemwise(1*(b >= A),\
+                cp.pos(U-b*ones(A.shape))) + cp.mul_elemwise(1*(b < A), \
+                cp.pos(-U + (b+1)*ones(A.shape))) for b in range(int(self.Amin),
+                    int(self.Amax))))
+    def decode(self, A): return maximum(minimum(A.round(), self.Amax), self.A.min)
+    def __str__(self): return "ordinal loss"
+
 # class OrdinalLoss(Loss):
 #     shape = 1
 #     Amax, Amin = 0, 0

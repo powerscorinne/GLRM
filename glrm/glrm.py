@@ -41,7 +41,7 @@ class GLRM(object):
 
     def predict(self):
         # return decode(XY), low-rank approximation of A
-        return hstack([L.decode(Aj, self.X.dot(yj)) for Aj, yj, L in zip(self.A, self.Y, self.L)])
+        return hstack([L.decode(self.X.dot(yj)) for Aj, yj, L in zip(self.A, self.Y, self.L)])
 
     def fit(self):
         Xv, Yp, pX = self.probX
