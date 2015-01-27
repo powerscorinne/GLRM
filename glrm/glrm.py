@@ -43,21 +43,24 @@ class GLRM(object):
         # return decode(XY), low-rank approximation of A
         return hstack([L.decode(self.X.dot(yj)) for Aj, yj, L in zip(self.A, self.Y, self.L)])
 
-    def fit(self):
+    def fit(self, max_iters=1000, eps=1e-2, use_indirect=False, warm_start=False):
         Xv, Yp, pX = self.probX
         Xp, Yv, pY = self.probY
         self.converge.reset()
 
         # alternating minimization
         while not self.converge.d():
-            objX = pX.solve(solver=cp.SCS, use_indirect=True, eps=1e-2)
+            objX = pX.solve(solver=cp.SCS, eps=eps, max_iters=max_iters,
+                    use_indirect=use_indirect, warm_start=warm_start)
+            print "solved X"
             Xp.value[:,:-1] = Xv.value
 
             # can parallelize this
             for ypj, yvj, pyj in zip(Yp, Yv, pY): 
-                pyj.solve(solver=cp.SCS, use_indirect=True, eps=1e-2)
+                pyj.solve(solver=cp.SCS, eps=eps, max_iters=max_iters,
+                        use_indirect=use_indirect, warm_start=warm_start)
                 ypj.value = yvj.value 
-            
+            print "solved Y"
             self.converge.obj.append(objX)
 
         self._finalize_XY(Xv, Yv)
