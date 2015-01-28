@@ -19,7 +19,7 @@ def PCA(A, k):
 
 def GLRMfit(A, k, missing=None):
     loss = HingeLoss
-    regX, regY = NonnegativeReg(1.0), NonnegativeReg(1.0)
+    regX, regY = LinearReg(1.0), LinearReg(1.0)
     model = GLRM(A, loss, regX, regY, k, missing)
     model.fit()
     model.converge.plot()
