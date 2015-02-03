@@ -23,7 +23,7 @@ regX, regY = QuadraticReg(0.1), QuadraticReg(0.1)
 glrm_ord = GLRM(A, loss, regX, regY, k)
 
 # Fit
-glrm_ord.fit(max_iters=100)
+glrm_ord.fit()
 
 # Results
 X, Y = glrm_ord.factors()
