@@ -7,6 +7,7 @@ Abstract loss class and canonical loss functions.
 
 # Abstract Loss class
 class Loss(object):
+    def __init__(self, A): return
     def loss(self, A, U): raise NotImplementedError("Override me!")
     def encode(self, A): return A # default
     def decode(self, A): return A # default
@@ -38,9 +39,9 @@ class HingeLoss(Loss):
     def __str__(self): return "hinge loss"
 
 class OrdinalLoss(Loss):
-    Amax, Amin = 0, 0
+    def __init__(self, A):
+        self.Amax, self.Amin = A.max(), A.min()
     def loss(self, A, U):
-        if self.Amax == self.Amin: self.Amin, self.Amax = A.min(), A.max()
         return cp.sum_entries(sum(cp.mul_elemwise(1*(b >= A),\
                 cp.pos(U-b*ones(A.shape))) + cp.mul_elemwise(1*(b < A), \
                 cp.pos(-U + (b+1)*ones(A.shape))) for b in range(int(self.Amin), int(self.Amax))))

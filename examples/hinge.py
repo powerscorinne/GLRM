@@ -9,7 +9,7 @@ from itertools import product
 from numpy import sign
 
 # Generate problem data
-m, n, k = 1000, 1000, 20
+m, n, k = 100, 100, 10
 eta = 0.1 # noise power
 X_true, Y_true = randn(m,k), randn(k,n)
 data = sign(X_true.dot(Y_true) + eta*randn(m,n)) # noisy rank k
@@ -17,12 +17,12 @@ data = sign(X_true.dot(Y_true) + eta*randn(m,n)) # noisy rank k
 # Initialize model
 A = data
 loss = HingeLoss
-regX, regY = QuadraticReg(0.5), QuadraticReg(0.5)
-c = Convergence(TOL=1e-6)
+regX, regY = QuadraticReg(0.01), QuadraticReg(0.01)
+c = Convergence(TOL=1e-2)
 model = GLRM(A, loss, regX, regY, k, converge=c)
 
 # Fit
-model.fit(eps=1e-1, max_iters=20)
+model.fit(eps=1e-4, max_iters = 1000) # want more precision for hinge loss problem
 
 # Results
 X, Y = model.factors()

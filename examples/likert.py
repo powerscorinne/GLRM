@@ -10,7 +10,7 @@ from math import ceil
 seed(1)
 
 # Generate problem data
-m, n, k = 20, 20, 4
+m, n, k = 100, 100, 10
 data = randn(m,k).dot(randn(k,n))
 data = data - data.min()
 data = (data/data.max()*6).round() + 1 # approx rank k
@@ -23,7 +23,7 @@ regX, regY = QuadraticReg(0.1), QuadraticReg(0.1)
 glrm_ord = GLRM(A, loss, regX, regY, k)
 
 # Fit
-glrm_ord.fit()
+glrm_ord.fit(eps=1e-3, max_iters=1000)
 
 # Results
 X, Y = glrm_ord.factors()

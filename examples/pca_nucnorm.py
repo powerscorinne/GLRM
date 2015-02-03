@@ -1,5 +1,5 @@
 from glrm.loss import QuadraticLoss
-from glrm.reg import QuadraticReg
+from glrm.reg import QuadraticReg, ZeroReg
 from glrm import GLRM
 from glrm.util import pplot
 from numpy.random import randn, choice, seed
@@ -9,18 +9,18 @@ from numpy import sign
 seed(1)
 
 # Generate problem data
-m, n, k = 25, 25, 5
+m, n, k = 50, 50, 10
 eta = 0.1 # noise power
 data = randn(m,k).dot(randn(k,n)) + eta*randn(m,n) # noisy rank k
 
 # Initialize model
 A = data
 loss = QuadraticLoss
-regX, regY = QuadraticReg(0.01), QuadraticReg(0.01)
+regX, regY = QuadraticReg(0.0001), QuadraticReg(0.0001)
 glrm_nn = GLRM(A, loss, regX, regY, k)
 
 # Fit
-glrm_nn.fit()
+glrm_nn.fit(eps=1e-4, max_iters=1000)
 
 # Results
 X, Y = glrm_nn.factors()
