@@ -1,5 +1,5 @@
 from convergence import Convergence
-from numpy import repeat, tile, hstack, array, zeros, ones, sqrt, diag, asarray, hstack, vstack, split, cumsum
+from numpy import sqrt, repeat, tile, hstack, array, zeros, ones, sqrt, diag, asarray, hstack, vstack, split, cumsum
 from numpy.random import randn
 from copy import copy
 from numpy.linalg import svd
@@ -10,8 +10,9 @@ import cvxpy as cp
 
 class GLRM(object):
 
-    def __init__(self, A, loss, regX, regY, k, missing_list = None, converge = None):
+    def __init__(self, A, loss, regX, regY, k, missing_list = None, converge = None, scale=True):
         
+        self.scale = scale
         # Turn everything in to lists / convert to correct dimensions
         if not isinstance(A, list): A = [A]
         if not isinstance(loss, list): loss = [loss]
@@ -44,6 +45,7 @@ class GLRM(object):
         return hstack([L.decode(self.X.dot(yj)) for Aj, yj, L in zip(self.A, self.Y, self.L)])
 
     def fit(self, max_iters=100, eps=1e-2, use_indirect=False, warm_start=False):
+        
         Xv, Yp, pX = self.probX
         Xp, Yv, pY = self.probY
         self.converge.reset()
@@ -60,7 +62,6 @@ class GLRM(object):
                         use_indirect=use_indirect, warm_start=warm_start)
                 ypj.value = copy(yvj.value)
             self.converge.obj.append(objX)
-            print objX, objY
 
         self._finalize_XY(Xv, Yv)
         return self.X, self.Y
@@ -126,7 +127,6 @@ class GLRM(object):
             B.append(bi) # save
             masks.append(mask)
             offsets.append(offset)
-
         self.masks = masks
         self.offsets = offsets
         return B
@@ -137,9 +137,10 @@ class GLRM(object):
         m, n = A.shape
 
         # normalize entries that are missing
-        stdev = A.std(0)
+        if self.scale: stdev = A.std(0)
+        else: stdev = ones(n)
         mu = A.mean(0)
-        C = m*n*1e-3 # XXX may need to be adjusted for larger problems
+        C = sqrt(1e-2/k) # XXX may need to be adjusted for larger problems
         A = (A-mu)/stdev + C*randn(m,n)
 
         # SVD to get initial point

@@ -18,10 +18,10 @@ def PCA(A, k):
     return X, Y
 
 def GLRMfit(A, k, missing=None):
-    loss = HingeLoss
-    regX, regY = LinearReg(1.0), LinearReg(1.0)
+    loss = QuadraticLoss
+    regX, regY = LinearReg(0.001), LinearReg(0.001)
     model = GLRM(A, loss, regX, regY, k, missing)
-    model.fit()
+    model.fit(eps=1e-4, max_iters=1000)
     model.converge.plot()
     return model.factors()
 
